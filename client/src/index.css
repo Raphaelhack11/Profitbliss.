@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* basic dark mode toggle support */
+:root { --bg: #0b1020; }
+body { background: linear-gradient(180deg,#071126,#0b1020); color: #e6eef8; }
+.light body { background: white; color: #111827; }
