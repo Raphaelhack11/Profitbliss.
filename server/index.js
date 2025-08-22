@@ -1,52 +1,35 @@
 import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import http from "http";
-import { Server as SocketIOServer } from "socket.io";
-import { initDb, seedInitialData } from "./startup/db.js";
+import cors from "cors";
 import authRoutes from "./routes/auth.js";
-import plansRoutes from "./routes/plans.js";
+import planRoutes from "./routes/plans.js";
 import txRoutes from "./routes/transactions.js";
-import adminRoutes from "./routes/admin.js";
-import messagesRoutes from "./routes/messages.js";
-import { initSocketHandlers } from "./ws/socket.js";
-import { startRoiWorker } from "./workers/roiWorker.js";
-import path from "path";
-import { fileURLToPath } from "url";
+import msgRoutes from "./routes/messages.js";
 
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
-const io = new SocketIOServer(server, {
-  cors: { origin: true, credentials: true }
-});
+app.use(express.json());
 
-app.use(cors({ origin: true, credentials: true }));
-app.use(bodyParser.json());
+// Allow requests from your frontend
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 
-// Initialize DB and seed
-await initDb();
-await seedInitialData();
-
+// Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/plans", plansRoutes);
+app.use("/api/plans", planRoutes);
 app.use("/api/transactions", txRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/messages", messagesRoutes);
+app.use("/api/messages", msgRoutes);
 
-// Serve health and static (if you plan)
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
+// Example: access environment variables
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ROI_WORKER_INTERVAL_MINUTES = process.env.ROI_WORKER_INTERVAL_MINUTES;
 
-// Socket handlers
-initSocketHandlers(io);
-
-// Start workers
-startRoiWorker(io).catch(console.error);
-
-// Start server
-const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => {
-  console.log(`Server and WS listening on ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Admin Email: ${ADMIN_EMAIL}`);
 });
