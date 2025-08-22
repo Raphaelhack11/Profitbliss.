@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: profit-bliss-server
+    env: node
+    rootDir: server
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    plan: free
+
+  - type: web
+    name: profit-bliss-client
+    env: node
+    rootDir: client
+    buildCommand: "npm install && npm run build"
+    startCommand: "npx serve -s build"
+    plan: free
